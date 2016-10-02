@@ -6,6 +6,12 @@
    (prc/graph
     "Draw nodes and edges"
     {:nodes nodes
-     :edges edges}))
+     :edges edges}
+    {:nodes {:shape "circle"
+             :size 10
+             :physics false}
+      :edges {:width 2}
+      :groups {:red {:color {:background "red"}}
+               :blue {:color {:background "blue"}}}}))
   ([G]
-   (prc/graph "Draw graph" G)))
+   (render (:nodes G) (:edges G))))

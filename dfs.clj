@@ -3,7 +3,7 @@
    :require [stepik.graph.core :refer [build adjacency-list]]
    :require [stepik.graph.renderer :refer [render]]))
 
-(def G (-> "/Users/e.cheltsov/Desktop/stepik/data/dfs-2.txt"
+(def G (-> "/Users/e.cheltsov/Projects/stepik-graph-theory/data/dfs-2.txt"
             reader
             line-seq
             build))
