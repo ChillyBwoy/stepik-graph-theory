@@ -5,7 +5,7 @@
             [stepik.graph.settings :refer [color-blue color-red]]
             [stepik.dfs :refer [dfs dfs-all]]))
 
-(def G (-> "/Users/e.cheltsov/Projects/stepik-graph-theory/data/euler-5.txt"
+(def G (-> "/Users/e.cheltsov/Projects/stepik-graph-theory/data/euler-6.txt"
             reader
             line-seq
             build))
@@ -68,13 +68,13 @@
                          vals
                          (map count)
                          (every? #(and (>= % 2) (even? %))))
-        is-connected (= (count (dfs-all (:nodes G) @euler-graph 1)) x)]
+        is-connected (= (count (dfs-all (:nodes G) @euler-graph x)) 1)]
       (if (and even-degree
                is-connected
                (> (G :e) 0)
                (> (G :v) 0))
         (find-euler-path x)
-        "NONE")))
+        nil)))
 
 (do
   (reset! euler-path [])

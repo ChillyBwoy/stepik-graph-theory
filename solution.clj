@@ -83,18 +83,20 @@
                          vals
                          (map count)
                          (every? #(and (>= % 2) (even? %))))
-        is-connected (= (count (dfs-all (:nodes G) @euler-graph 1)) x)]
+        is-connected (= (count (dfs-all (:nodes G) @euler-graph x)) 1)]
       (if (and even-degree
                is-connected
                (> (G :e) 0)
                (> (G :v) 0))
         (find-euler-path x)
-        "NONE")))
+        nil)))
 
 (do
   (reset! euler-path [])
   (reset! euler-graph (adjacency-list G))
   (let [r (resolve-euler-path G 1)]
-    (if (vector? r)
+    (if (and (vector? r)
+             (= (first r) (last r))
+             (not-any? #(> % 0) (map #(count (val %)) @euler-graph)))
       (println (clojure.string/join " " (pop r)))
-      (println r))))
+      (println "NONE"))))
