@@ -1,5 +1,7 @@
 (ns stepik.graph.renderer
-  (:require [prc :refer [graph]]))
+  (:require [prc :refer [graph]]
+            [stepik.graph.settings :refer [color-blue color-red]]))
+
 
 (defn render
   ([nodes edges]
@@ -11,7 +13,7 @@
              :size 10
              :physics false}
       :edges {:width 2}
-      :groups {:red {:color {:background "red"}}
-               :blue {:color {:background "blue"}}}}))
+      :groups {:red {:color {:background color-red}}
+               :blue {:color {:background color-blue}}}}))
   ([G]
    (render (:nodes G) (:edges G))))
