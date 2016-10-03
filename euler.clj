@@ -2,9 +2,10 @@
   (:use [clojure.java.io :only [reader]]
    :require [prc]
             [stepik.graph.core :refer [build adjacency-list adjacency-matrix]]
-            [stepik.graph.settings :refer [color-blue color-red]]))
+            [stepik.graph.settings :refer [color-blue color-red]]
+            [stepik.dfs :refer [dfs dfs-all]]))
 
-(def G (-> "/Users/e.cheltsov/Projects/stepik-graph-theory/data/euler-2.txt"
+(def G (-> "/Users/e.cheltsov/Projects/stepik-graph-theory/data/euler-5.txt"
             reader
             line-seq
             build))
@@ -49,8 +50,7 @@
       (vec (concat (subvec arr 0 pos) (subvec arr (inc pos)))))))
 
 (def euler-path (atom []))
-(def euler-graph (atom (adjacency-list G)))
-
+(def euler-graph (atom {}))
 
 (defn find-euler-path [x]
   (while (> (count (@euler-graph x)) 0)
@@ -63,13 +63,20 @@
         (find-euler-path y))))
   (swap! euler-path conj x))
 
-(defn resolve-euler-path [x]
-  (let [event-degree (->> @euler-graph
-                          vals
-                          (map count)
-                          (every? #(and (> % 0) (even? %))))]
-      (if event-degree
+(defn resolve-euler-path [g x]
+  (let [even-degree (->> @euler-graph
+                         vals
+                         (map count)
+                         (every? #(and (>= % 2) (even? %))))
+        is-connected (= (count (dfs-all (:nodes G) @euler-graph 1)) x)]
+      (if (and even-degree
+               is-connected
+               (> (G :e) 0)
+               (> (G :v) 0))
         (find-euler-path x)
         "NONE")))
 
-(resolve-euler-path 1)
+(do
+  (reset! euler-path [])
+  (reset! euler-graph (adjacency-list G))
+  (resolve-euler-path G 1))

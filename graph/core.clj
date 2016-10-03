@@ -8,9 +8,12 @@
 
 
 (defn build [data]
-  (let [edges (map #(get-pair %) (next data))
+  (let [[v e] (get-pair (first data))
+        edges (map #(get-pair %) (next data))
         nodes (flatten edges)]
-    {:nodes (set nodes)
+    {:v v
+     :e e
+     :nodes (set nodes)
      :edges edges}))
 
 

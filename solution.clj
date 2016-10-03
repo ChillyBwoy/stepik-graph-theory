@@ -5,9 +5,12 @@
     (vec (map #(Integer/parseInt %) [x y]))))
 
 (defn build [data]
-  (let [edges (map #(get-pair %) (next data))
+  (let [[v e] (get-pair (first data))
+        edges (map #(get-pair %) (next data))
         nodes (flatten edges)]
-    {:nodes (set nodes)
+    {:v v
+     :e e
+     :nodes (set nodes)
      :edges edges}))
 
 (defn adjacency-edges [x edges]
@@ -37,10 +40,32 @@
       arr
       (vec (concat (subvec arr 0 pos) (subvec arr (inc pos)))))))
 
+(defn dfs [g s]
+  (loop [visited #{s}
+         frontier [s]
+         path []]
+    (if (empty? frontier)
+      path
+      (let [v (peek frontier)
+            adj (g v)]
+        (recur
+          (into visited adj)
+          (into (pop frontier) (remove visited adj))
+          (conj path v))))))
+
+(defn dfs-all [n g s]
+  (loop [nodes n
+         result []]
+    (if (= (count nodes) 0)
+        result
+        (let [step (dfs g (first nodes))]
+          (recur (remove (set step) nodes)
+                 (conj result step))))))
+
 (def G (build (line-seq (java.io.BufferedReader. *in*))))
 
 (def euler-path (atom []))
-(def euler-graph (atom (adjacency-list G)))
+(def euler-graph (atom {}))
 
 (defn find-euler-path [x]
   (while (> (count (@euler-graph x)) 0)
@@ -53,16 +78,23 @@
         (find-euler-path y))))
   (swap! euler-path conj x))
 
-(defn resolve-euler-path [x]
-  (let [event-degree (->> @euler-graph
-                          vals
-                          (map count)
-                          (every? #(and (> % 0) (even? %))))]
-      (if event-degree
+(defn resolve-euler-path [g x]
+  (let [even-degree (->> @euler-graph
+                         vals
+                         (map count)
+                         (every? #(and (>= % 2) (even? %))))
+        is-connected (= (count (dfs-all (:nodes G) @euler-graph 1)) x)]
+      (if (and even-degree
+               is-connected
+               (> (G :e) 0)
+               (> (G :v) 0))
         (find-euler-path x)
         "NONE")))
 
-(let [r (resolve-euler-path 1)]
-  (if (vector? r)
-    (println (clojure.string/join " " (pop r)))
-    (println r)))
+(do
+  (reset! euler-path [])
+  (reset! euler-graph (adjacency-list G))
+  (let [r (resolve-euler-path G 1)]
+    (if (vector? r)
+      (println (clojure.string/join " " (pop r)))
+      (println r))))
