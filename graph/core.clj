@@ -20,8 +20,7 @@
 
 (defn adjaceny-verticies [x edges]
   (-> (adjacency-edges x edges)
-      flatten
-      set))
+      flatten))
 
 
 (defn zip-adjaceny [nodes edges]

@@ -9,8 +9,6 @@
             line-seq
             build))
 
-(use 'clojure.data)
-
 (prc/graph
   "Euler"
   {:nodes (:nodes G)
@@ -41,27 +39,37 @@
 ; }
 ; eulerPath(G, '1');
 
+(defn index-of [coll e]
+  (first (keep-indexed #(if (= e %2) %1) coll)))
+
+(defn remove-first-entry [arr num]
+  (let [pos (index-of arr num)]
+    (if (nil? pos)
+      arr
+      (vec (concat (subvec arr 0 pos) (subvec arr (inc pos)))))))
 
 (def euler-path (atom []))
 (def euler-graph (atom (adjacency-list G)))
 
-; (let [event-degree (->> euler-graph
-;                         vals
-;                         (map count)
-;                         (every? even?))]
-;   (if event-degree
-;     "NONE"))
 
 (defn find-euler-path [x]
-  (loop [gx (@euler-graph x)]
-    (if (= (count gx) 0)
-      @euler-graph
-      (let [y (first gx)]
-        (do
-          (swap! euler-graph update-in [x] (remove #(= y %) gx))
-          (swap! euler-graph update-in [y] (remove #(= x %) gx))
-          (swap! euler-path conj x)
-          (recur (@euler-graph y)))))))
+  (while (> (count (@euler-graph x)) 0)
+    (do
+      (let [gx (@euler-graph x)
+            y (first gx)
+            gy (@euler-graph y)]
+        (swap! euler-graph assoc x (remove-first-entry gx y))
+        (swap! euler-graph assoc y (remove-first-entry gy x))
+        (find-euler-path y))))
+  (swap! euler-path conj x))
 
+(defn resolve-euler-path [x]
+  (let [event-degree (->> @euler-graph
+                          vals
+                          (map count)
+                          (every? #(and (> % 0) (even? %))))]
+      (if event-degree
+        (find-euler-path x)
+        "NONE")))
 
-(find-euler-path 1)
+(resolve-euler-path 1)
