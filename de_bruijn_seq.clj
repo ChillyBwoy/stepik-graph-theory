@@ -17,6 +17,13 @@
                 f (format (str "%" k "s") s)]
               (clojure.string/replace f #" " "0"))))))
 
+(defn edge-map [a b n]
+  (let [as (suffix a n)
+        bp (prefix b n)]
+    (if (= as bp)
+      {:from a :to b}
+      {:from b :to a})))
+
 (defn edges-seq [n k nodes]
   (let [size (dec k)]
     (loop [x (first nodes)
@@ -24,14 +31,14 @@
            edges []]
       (if (nil? x)
         edges
-        (let [suf (suffix x (dec k))
-              adjacency (filter #(= suf (prefix % (dec k))) nodes)]
+        (let [suf (suffix x size)
+              adjacency (filter #(= suf (prefix % size)) nodes)]
           (recur (first xs)
                  (next xs)
-                 (apply conj edges (map #(sorted-map :from x :to %) adjacency))))))))
+                 (apply conj edges (map #(edge-map x % size) adjacency))))))))
 
 (let [n 2
-      k 4
+      k 3
       nodes (nodes-seq n k)
       edges (edges-seq n k nodes)]
     (prc/graph
