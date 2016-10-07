@@ -1,6 +1,5 @@
-(ns stepik.de-bruijn-seq
-  (:require [prc :refer [graph]]
-            [stepik.graph.settings :refer [color-blue color-red]]))
+(ns stepik.de-bruijn-hamiltonian
+  (:require [prc :refer [graph]]))
 
 (defn suffix [s n]
   (subs s (- (count s) n)))
@@ -21,8 +20,8 @@
   (let [as (suffix a n)
         bp (prefix b n)]
     (if (= as bp)
-      {:from a :to b}
-      {:from b :to a})))
+      {:from a :to b :label as}
+      {:from b :to a :label as})))
 
 (defn edges-seq [n k nodes]
   (let [size (dec k)]
@@ -31,8 +30,8 @@
            edges []]
       (if (nil? x)
         edges
-        (let [suf (suffix x size)
-              adjacency (filter #(= suf (prefix % size)) nodes)]
+        (let [suff (suffix x size)
+              adjacency (filter #(= suff (prefix % size)) nodes)]
           (recur (first xs)
                  (next xs)
                  (apply conj edges (map #(edge-map x % size) adjacency))))))))
@@ -50,3 +49,17 @@
                :shape "circle"}
        :edges {:width 2
                :arrows ":to"}}))
+
+; 0000
+; 0001
+; 0010
+; 0100
+; 1001
+; 0011
+; 0110
+; 1101
+; 1010
+; 0101
+; 1011
+; 0111
+; 1111
