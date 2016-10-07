@@ -10,22 +10,22 @@
        (clojure.string/join #"")))
 
 (defn nodes-seq [n k]
-  (let [size (Math/pow n k)]
-    (set (for [x (range size)]
-            (let [s (Integer/toString x n)
-                  f (format (str "%" k "s") s)]
-              (prefix (clojure.string/replace f #" " "0") n))))))
+  (let [k' (dec k)
+        size (Math/pow n k')]
+    (for [x (range size)]
+      (let [s (Integer/toString x n)
+            f (format (str "%" k' "s") s)]
+          (clojure.string/replace f #" " "0")))))
 
 
-(defn reduce-adjacency [n nodes v]
-  (let [suff (last v)]
-    (reduce
-      (fn [acc x]
-        (if (= suff (first x))
-          (conj acc {:from v :to x :label (str v (last x))})
-          acc))
-      []
-      nodes)))
+(defn reduce-adjacency [nodes v n]
+  (reduce
+    (fn [acc x]
+      (if (= (suffix v n) (prefix x n))
+        (conj acc {:from v :to x :label (str v (last x))})
+        acc))
+    []
+    nodes))
 
 
 (defn edges-seq [n k nodes]
@@ -34,14 +34,16 @@
          edges []]
     (if (nil? x)
       edges
-      (let [suff (last x)
-            adjacency (reduce-adjacency n nodes x)]
+      (let [adjacency (reduce-adjacency nodes x (- k 2))]
         (recur (first xs)
                (next xs)
                (apply conj edges adjacency))))))
 
+
+(count (edges-seq 2 4 (nodes-seq 2 4)))
+
 (let [n 2
-      k 3
+      k 4
       nodes (nodes-seq n k)
       edges (edges-seq n k nodes)]
     (prc/graph

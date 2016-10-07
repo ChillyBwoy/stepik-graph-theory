@@ -37,7 +37,7 @@
                  (apply conj edges (map #(edge-map x % size) adjacency))))))))
 
 (let [n 2
-      k 3
+      k 4
       nodes (nodes-seq n k)
       edges (edges-seq n k nodes)]
     (prc/graph
